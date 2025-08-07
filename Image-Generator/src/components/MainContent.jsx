@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Styles/MainContent.css";
 
 const STORAGE_KEY = "savedImages";
-const EXPIRATION_MS = 2 * 24 * 60 * 60 * 1000;
+const EXPIRATION_MS = 2 * 24 * 60 * 60 * 1000; // 2 days expiration for saved images
 
 const SIZE_OPTIONS = [
   { label: "512x512", width: 512, height: 512 },
@@ -12,6 +12,7 @@ const SIZE_OPTIONS = [
   { label: "1920x1080", width: 1920, height: 1080 },
 ];
 
+// Helper to generate download URL based on prompt and size
 const generateDownloadUrl = (prompt, width, height) => {
   const safePrompt = encodeURIComponent(
     prompt.trim().toLowerCase().replace(/\s+/g, "-")
@@ -20,6 +21,7 @@ const generateDownloadUrl = (prompt, width, height) => {
 };
 
 export default function MainContent() {
+  // --- State declarations ---
   const [prompt, setPrompt] = useState("");
   const [imageGroups, setImageGroups] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,6 +31,7 @@ export default function MainContent() {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPreviewUrl, setSelectedPreviewUrl] = useState(null);
 
+  // --- Load saved images from localStorage on mount ---
   useEffect(() => {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
@@ -40,7 +43,7 @@ export default function MainContent() {
         );
         setImageGroups(
           filtered.map((group) => {
-            delete group.savedAt;
+            delete group.savedAt; 
             return group;
           })
         );
@@ -50,6 +53,7 @@ export default function MainContent() {
     }
   }, []);
 
+  // --- Update selected size & preview URL when active image group changes ---
   useEffect(() => {
     if (activeGroupIndex !== null) {
       const group = imageGroups[activeGroupIndex];
@@ -62,6 +66,7 @@ export default function MainContent() {
     }
   }, [activeGroupIndex, imageGroups]);
 
+  // --- Update preview URL when selected version changes ---
   useEffect(() => {
     if (activeGroupIndex !== null) {
       setSelectedPreviewUrl(
@@ -72,6 +77,7 @@ export default function MainContent() {
     }
   }, [imageGroups[activeGroupIndex]?.selectedVersion]);
 
+  // --- Helper to save images to localStorage with timestamp ---
   const persistImages = (groups) => {
     const now = Date.now();
     const dataToSave = groups.map((group) => ({
@@ -81,6 +87,7 @@ export default function MainContent() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
   };
 
+  // --- Generate new image and add to groups ---
   const generateImage = () => {
     if (!prompt.trim()) return;
     setLoading(true);
@@ -88,6 +95,7 @@ export default function MainContent() {
     const encodedPrompt = encodeURIComponent(trimmedPrompt);
     const url = `http://localhost:5000/api/image?prompt=${encodedPrompt}&t=${Date.now()}`;
 
+    // Simulate API call delay
     setTimeout(() => {
       const newGroups = [
         {
@@ -104,24 +112,34 @@ export default function MainContent() {
     }, 1200);
   };
 
-  const handleRetry = () => {
-    if (activeGroupIndex === null) return;
-    const group = imageGroups[activeGroupIndex];
-    const encodedPrompt = encodeURIComponent(group.prompt);
-    const url = `http://localhost:5000/api/image?prompt=${encodedPrompt}&t=${Date.now()}`;
-    setLoading(true);
-    setTimeout(() => {
-      const updatedGroups = [...imageGroups];
-      updatedGroups[activeGroupIndex].versions.unshift({
-        url,
-        id: Date.now(),
-      });
-      setImageGroups(updatedGroups);
-      persistImages(updatedGroups);
-      setLoading(false);
-    }, 1200);
-  };
+  // --- Retry generation for current active group ---
+ const handleRetry = () => {
+  if (activeGroupIndex === null) return;
+  const group = imageGroups[activeGroupIndex];
 
+  // Append a random suffix to the prompt for variability
+  const randomSuffix = Math.floor(Math.random() * 10000);
+  const encodedPrompt = encodeURIComponent(`${group.prompt}-${randomSuffix}`);
+
+  // Construct the URL with the modified prompt seed
+  const url = `http://localhost:5000/api/image?prompt=${encodedPrompt}`;
+
+  setLoading(true);
+
+  setTimeout(() => {
+    const updatedGroups = [...imageGroups];
+    updatedGroups[activeGroupIndex].versions.unshift({
+      url,
+      id: Date.now(),
+    });
+    setImageGroups(updatedGroups);
+    persistImages(updatedGroups);
+    setLoading(false);
+  }, 1200);
+};
+
+
+  // --- Select a specific version of an image ---
   const handleSelectVersion = (versionIndex) => {
     if (activeGroupIndex === null) return;
     const updatedGroups = [...imageGroups];
@@ -129,6 +147,7 @@ export default function MainContent() {
     setImageGroups(updatedGroups);
   };
 
+  // --- Save size selection for active group ---
   const handleSaveSelection = () => {
     if (activeGroupIndex === null) return;
     const updatedGroups = [...imageGroups];
@@ -139,6 +158,7 @@ export default function MainContent() {
     setTimeout(() => setSavedMessageVisible(false), 2000);
   };
 
+  // --- Download selected image version ---
   const handleDownload = async () => {
     if (activeGroupIndex === null) return;
     const group = imageGroups[activeGroupIndex];
@@ -162,160 +182,158 @@ export default function MainContent() {
     }
   };
 
-  return (
-    <>
-      <div className={`main-content ${showPreview ? "blurred" : ""}`}>
-        <div className="top-bar">
-          <input
-            type="text"
-            placeholder="Describe your image..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <button onClick={generateImage}>Generate</button>
-        </div>
-
-        <div
-          className="output-section"
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "8px",
-            marginLeft: "250px",
-            marginTop: "20px",
-          }}
-        >
-          {loading && <div className="loader"></div>}
-
-          {!loading &&
-            imageGroups.map((group, groupIndex) => (
-              <div
-                key={groupIndex}
-                className="image-card"
-                onClick={() => setActiveGroupIndex(groupIndex)}
-                style={{ width: 320, cursor: "pointer" }}
-              >
-                <img
-                  src={group.versions[group.selectedVersion].url}
-                  alt="Generated"
-                  style={{ width: "100%", height: "auto" }}
-                />
-                <div className="image-info">
-                  <p>
-                    <strong>Prompt:</strong> {group.prompt}
-                  </p>
-                  <p>
-                    <strong>Size:</strong> {group.size}
-                  </p>
-                </div>
-              </div>
-            ))}
-        </div>
-
-        {/* Side Panel */}
-        {activeGroupIndex !== null && (
-          <div className="side-panel">
-            <button
-              className="close-btn"
-              onClick={() => {
-                setActiveGroupIndex(null);
-                setShowPreview(false);
-              }}
-            >
-              ✕
-            </button>
-
-            <h3>Prompt:</h3>
-            <p>{imageGroups[activeGroupIndex].prompt}</p>
-
-            {/* Preview Thumbnail to open preview modal */}
-            <div
-              className="preview-thumbnail"
-              style={{ cursor: "pointer", margin: "10px 0" }}
-            >
-              <img
-                src={selectedPreviewUrl}
-                alt="Preview Thumbnail"
-                style={{ maxWidth: "100%", borderRadius: "8px" }}
-                onClick={() => setShowPreview(true)}
-              />
-              <small>Click image to preview</small>
-            </div>
-
-            <div className="size-selector">
-              <label>Select size:</label>
-              <select
-                className="styled-select"
-                value={selectedSize.label}
-                onChange={(e) =>
-                  setSelectedSize(
-                    SIZE_OPTIONS.find((size) => size.label === e.target.value)
-                  )
-                }
-              >
-                {SIZE_OPTIONS.map((size) => (
-                  <option key={size.label} value={size.label}>
-                    {size.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="button-row" style={{ alignItems: "center" }}>
-              <button onClick={handleRetry}>Retry</button>
-              <button onClick={handleSaveSelection}>OK (Save)</button>
-              <button
-                onClick={handleDownload}
-                style={{ marginLeft: "auto", backgroundColor: "#187632" }}
-              >
-                Download
-              </button>
-              {savedMessageVisible && (
-                <span
-                  className="saved-message"
-                  style={{ marginLeft: "10px", color: "#4caf50" }}
-                >
-                  Saved ✓
-                </span>
-              )}
-            </div>
-
-            <h4>All Versions:</h4>
-            <div className="versions">
-              {imageGroups[activeGroupIndex].versions.map((version, index) => (
-                <div
-                  key={version.id}
-                  className={`version-thumb ${
-                    index === imageGroups[activeGroupIndex].selectedVersion
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() => handleSelectVersion(index)}
-                >
-                  <img src={version.url} alt={`Version ${index + 1}`} />
-                  <p>{index === 0 ? "Original" : `Retry ${index}`}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+ return (
+  <>
+    {/* --- Main Content Container --- */}
+    <div className={`main-content ${showPreview ? "blurred" : ""}`}>
+      {/* --- Top Bar: Prompt input and generate button --- */}
+      <div className="top-bar">
+        <input
+          type="text"
+          placeholder="Describe your image..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+        <button onClick={generateImage}>Generate</button>
       </div>
 
-      {/* Preview Modal moved outside main-content to avoid blur & pointer-events:none */}
-      {showPreview && selectedPreviewUrl && (
-        <div
-          className="preview-modal"
-          onClick={() => {
-            setShowPreview(false);
-          }}
-        >
-          <img
-            src={selectedPreviewUrl}
-            alt="Preview"
-            className="preview-image"
-          />
+      {/* --- Output Section --- */}
+      <div
+        className="output-section"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0px",       // No gap, images will touch each other
+          marginLeft: "250px",
+          marginTop: "20px",
+        }}
+      >
+        {loading && <div className="loader"></div>}
+
+        {!loading &&
+          imageGroups.map((group, groupIndex) => (
+            <div
+              key={groupIndex}
+              className="image-card"
+              onClick={() => setActiveGroupIndex(groupIndex)}
+              style={{ width: 320, cursor: "pointer" }}
+            >
+              <img
+                src={group.versions[group.selectedVersion].url}
+                alt="Generated"
+                style={{ width: "100%", height: "auto", display: "block" }}
+              />
+              {/* Removed prompt and size info here */}
+            </div>
+          ))}
+      </div>
+
+      {/* --- Side Panel --- */}
+      {activeGroupIndex !== null && (
+        <div className="side-panel">
+          <button
+            className="close-btn"
+            onClick={() => {
+              setActiveGroupIndex(null);
+              setShowPreview(false);
+            }}
+          >
+            ✕
+          </button>
+
+          <h3>Prompt:</h3>
+          <p>{imageGroups[activeGroupIndex].prompt}</p>
+
+          <h3>Size:</h3>
+          <p>{imageGroups[activeGroupIndex].size}</p>
+
+          {/* --- Preview Thumbnail to open preview modal --- */}
+          <div
+            className="preview-thumbnail"
+            style={{ cursor: "pointer", margin: "10px 0" }}
+          >
+            <img
+              src={selectedPreviewUrl}
+              alt="Preview Thumbnail"
+              style={{ maxWidth: "100%", borderRadius: "8px" }}
+              onClick={() => setShowPreview(true)}
+            />
+            <small>Click image to preview</small>
+          </div>
+
+          {/* --- Size selector dropdown --- */}
+          <div className="size-selector">
+            <label>Select size:</label>
+            <select
+              className="styled-select"
+              value={selectedSize.label}
+              onChange={(e) =>
+                setSelectedSize(
+                  SIZE_OPTIONS.find((size) => size.label === e.target.value)
+                )
+              }
+            >
+              {SIZE_OPTIONS.map((size) => (
+                <option key={size.label} value={size.label}>
+                  {size.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* --- Buttons: Retry, Save, Download --- */}
+          <div className="button-row" style={{ alignItems: "center" }}>
+            <button onClick={handleRetry}>Retry</button>
+            <button onClick={handleSaveSelection}>OK (Save)</button>
+            <button
+              onClick={handleDownload}
+              style={{ marginLeft: "auto", backgroundColor: "#187632" }}
+            >
+              Download
+            </button>
+            {savedMessageVisible && (
+              <span
+                className="saved-message"
+                style={{ marginLeft: "10px", color: "#4caf50" }}
+              >
+                Saved ✓
+              </span>
+            )}
+          </div>
+
+          {/* --- Versions List --- */}
+          <h4>All Versions:</h4>
+          <div className="versions">
+            {imageGroups[activeGroupIndex].versions.map((version, index) => (
+              <div
+                key={version.id}
+                className={`version-thumb ${
+                  index === imageGroups[activeGroupIndex].selectedVersion
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() => handleSelectVersion(index)}
+              >
+                <img src={version.url} alt={`Version ${index + 1}`} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </>
-  );
+    </div>
+
+    {/* --- Preview Modal --- */}
+    {showPreview && selectedPreviewUrl && (
+      <div
+        className="preview-modal"
+        onClick={() => {
+          setShowPreview(false);
+        }}
+      >
+        <img src={selectedPreviewUrl} alt="Preview" className="preview-image" />
+      </div>
+    )}
+  </>
+);
+
 }

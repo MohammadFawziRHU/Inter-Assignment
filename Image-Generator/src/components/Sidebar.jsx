@@ -46,7 +46,7 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div>
-        <h1 className="sidebar-title">Midjourney</h1>
+        <h1 className="sidebar-title">Endjourney</h1>
         <ul className="sidebar-menu">
           {menu.map((item, idx) => (
             <li key={idx}>

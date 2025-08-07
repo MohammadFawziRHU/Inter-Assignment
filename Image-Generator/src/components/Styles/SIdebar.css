@@ -1,8 +1,10 @@
-*{
+/* --- Reset Default Margins and Padding for all elements --- */
+* {
     margin: 0;
     padding: 0;
 }
 
+/* --- Sidebar Container Styles --- */
 .sidebar {
   position: fixed;
   top: 0;
@@ -16,22 +18,24 @@
   justify-content: space-between;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, sans-serif;
-  z-index: 1000; 
+  z-index: 1000; /* Ensure sidebar stays on top */
 }
 
-
+/* --- Sidebar Title Styling --- */
 .sidebar-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 30px;
 }
 
+/* --- Sidebar Menu List Styles --- */
 .sidebar-menu {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
+/* --- Sidebar Button Base Styles --- */
 .sidebar-button {
   width: 100%;
   display: flex;
@@ -41,79 +45,93 @@
   background: none;
   border: none;
   color: inherit;
-  border-radius: 999px;
+  border-radius: 999px; /* Rounded pill shape */
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
+/* --- Sidebar Button Hover Effect --- */
 .sidebar-button:hover {
   background-color: #222;
 }
 
+/* --- Active Sidebar Button Styles --- */
 .sidebar-button.active {
   background: linear-gradient(to right, #761818, #28100f);
   color: #ff4d4d;
 }
 
+/* --- Badge Styling (e.g., notification count) --- */
 .badge {
   color: #ff4d4d;
   font-size: 12px;
-  margin-left: auto;
+  margin-left: auto; /* Push badge to right */
 }
 
+/* --- Sidebar Bottom Section Container --- */
 .sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* --- Login Button Styles --- */
 .login-btn {
   background-color: #2c2c2e;
 }
 
+/* --- Login Button Hover Effect --- */
 .login-btn:hover {
   background-color: #3a3a3c;
 }
 
+/* --- Signup Button Styles --- */
 .signup-btn {
   background: linear-gradient(to right, #761818, #28100f);
   color: #ff4d4d;
 }
 
-/* Global Light/Dark Mode Styles */
+/* --- Global Dark Mode Styles --- */
 body.dark-mode {
   background-color: #1e1e1e;
   color: white;
 }
 
+/* --- Global Light Mode Styles --- */
 body.light-mode {
   background-color: #f7f7f7;
   color: #111;
 }
 
+/* --- Sidebar Styles for Light Mode --- */
 .light-mode .sidebar {
   background-color: #fff;
   color: #111;
 }
 
+/* --- Sidebar Button Hover in Light Mode --- */
 .light-mode .sidebar-button:hover {
   background-color: #ddd;
 }
 
+/* --- Active Sidebar Button in Light Mode --- */
 .light-mode .sidebar-button.active {
   background: linear-gradient(to right, #ffa07a, #ff7f50);
   color: #111;
 }
 
+/* --- Login Button Styles for Light Mode --- */
 .light-mode .login-btn {
   background-color: #ddd;
 }
 
+/* --- Login Button Hover Effect in Light Mode --- */
 .light-mode .login-btn:hover {
   background-color: #ccc;
 }
 
+/* --- Signup Button Styles for Light Mode --- */
 .light-mode .signup-btn {
   background: linear-gradient(to right, #ffa07a, #ff7f50);
   color: #fff;
