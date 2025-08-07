@@ -1,23 +1,22 @@
-import Sidebar from "./componenets/Sidebar"; 
+import Sidebar from "./components/Sidebar";
+import MainContent from "./components/MainContent";
+
 function App() {
   return (
     <>
       <Sidebar />
       <div
         style={{
-          marginLeft: "250px", // matches sidebar width
-          background: "#1e1e1e",
-          color: "#fff",
-          padding: "2rem",
+          marginLeft: "250px",
+          background: "inherit", 
+          color: "inherit",
           minHeight: "100vh",
         }}
       >
-        <h1>Main Area</h1>
-        {/* We'll build the content here next */}
+        <MainContent />
       </div>
     </>
   );
 }
 
 export default App;
-

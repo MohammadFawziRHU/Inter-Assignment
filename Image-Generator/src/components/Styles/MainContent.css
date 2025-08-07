@@ -1,0 +1,124 @@
+/* ========== GLOBAL RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+  margin-left: 250px; 
+  padding: 20px;
+  color: inherit;
+  background-color: #111113;
+  min-height: 100vh;
+}
+
+/* ========== TOP BAR ========== */
+.top-bar {
+  display: flex;
+  margin-left: 250px;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #111113;
+  padding: 10px 0;
+}
+
+.top-bar input {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+}
+
+.top-bar button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  background-color: #761818;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.top-bar button:hover {
+  background-color: #a02222;
+}
+
+/* ========== IMAGE OUTPUT AREA ========== */
+.output-section {
+  margin-top: 20px;
+}
+
+.loader {
+  font-size: 18px;
+  color: #ccc;
+}
+
+.image-card {
+  background-color: #111113;
+  border-radius: 12px;
+  padding: 15px;
+  width: 600px;
+  max-width: 100%;
+  color: #ccc;
+}
+
+.image-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.image-info {
+  margin-top: 10px;
+  font-size: 14px;
+  color: inherit;
+}
+
+/* ========== LIGHT MODE OVERRIDES ========== */
+body.light-mode {
+  background-color: #fff;
+  color: #111;
+}
+
+body.light-mode .main-content {
+  background-color: #fff;
+  color: #111;
+}
+
+body.light-mode .top-bar {
+  background-color: #fff;
+}
+
+body.light-mode .top-bar input {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #aaa;
+}
+
+body.light-mode .top-bar button {
+  background-color: #a02222;
+  color: white;
+}
+
+body.light-mode .top-bar button:hover {
+  background-color: #c03a3a;
+}
+
+body.light-mode .image-card {
+  background-color: #f0f0f0;
+  color: #000;
+}
