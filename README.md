@@ -8,3 +8,17 @@ How to run the Server:
 2. node server.js
 
 
+Inter-Assignment/
+│
+├── backend/              # Node.js backend (Express server)
+│   ├── server.js
+│   ├── package.json
+│   ├── .env              # Environment variables (not committed)
+│   ├── .env.example      # Example environment variables
+│   └── .gitignore
+│
+└── Image-Generator/      # React frontend (Vite)
+    ├── src/
+    ├── public/
+    ├── package.json
+    └── .gitignore
